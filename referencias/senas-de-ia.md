@@ -4,6 +4,8 @@ Hay dos generaciones de señas. La primera (2023 a 2025) es la conocida: violeta
 
 Ninguna seña sola condena una web. Lo que delata es la suma, y sobre todo que no haya nada que solo ese negocio podría tener.
 
+Esta lista dice qué sacar. Qué poner en su lugar para que la web se use sola y se vea de primera está en [la-vara-alta.md](la-vara-alta.md).
+
 ## Las tres pruebas (hacelas primero)
 
 1. **Prueba del logo ajeno.** Imaginá la web con el logo y el nombre de la competencia. Si sirve igual, no tiene nada propio. Es la seña más grave y casi siempre es de contenido, no de diseño.
@@ -18,8 +20,8 @@ Ninguna seña sola condena una web. Lo que delata es la suma, y sobre todo que n
 | **Grilla de 3 o 4 columnas iguales** con ícono, título y texto ("Por qué elegirnos", "Servicios"). | Una razón grande con su prueba y las demás más chicas; o una lista con peso desigual; o un párrafo bien escrito. Si son tres cosas, que no pesen igual. |
 | **Título a la izquierda y texto a la derecha**, repetido en varias secciones. | Usarlo una vez, donde de verdad hay un título y un desarrollo. Variar el ancho y la posición de las columnas. |
 | **Mismo espacio arriba y abajo en todas las secciones**: ritmo parejo, mucho aire vacío. | Alternar: secciones densas de información y otras con aire. Algo que cruce de borde a borde. Menos espacio donde no hay nada que respirar. |
-| **Hero de manual**: foto de fondo oscurecida con título y un link; o título centrado sobre degradé. | Que la primera pantalla muestre algo real y concreto: una propiedad o producto con su dato, el trabajo hecho, el lugar. O una frase con un dato que solo este negocio puede decir. |
-| **Todo centrado y simétrico.** | Alinear a un eje y romperlo a propósito una o dos veces. |
+| **Hero de manual**: foto de banco oscurecida con una frase que podría ser de cualquiera y un link vago ("Ver más"); o título centrado sobre degradé. | Imagen o video propio de borde a borde, una frase concreta de hasta 8 palabras y una sola acción que es la tarea real del cliente (buscar, ver propiedades). Detalle en `la-vara-alta.md`, sección 3. |
+| **Todo centrado y simétrico**, sección tras sección. | La primera pantalla puede ir centrada (frase y una acción). El resto, alineado a un eje y roto a propósito una o dos veces. |
 | **Pie de 4 columnas** que repite el menú y la frase. | Pie corto con lo que de verdad se busca ahí: horario, cómo llegar, matrícula, quién atiende. |
 | **Cierre genérico**: "Hablemos.", "¿Listo para empezar?", "Contactanos". | Decir el próximo paso concreto: quién responde, cuándo y por dónde. |
 | **Secciones de relleno**: números redondos sin fuente, logos de clientes, "Nuestra misión", testimonios sin nombre. | Sacarlas. Mejor una sección menos que una de mentira. |

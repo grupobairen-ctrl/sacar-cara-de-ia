@@ -6,7 +6,7 @@ Reglas para llenarlo:
 - Los valores salen del CSS real (las variables de `:root`) y de `Identidad visual`. Si no coinciden, gana la nota del vault y el CSS se corrige en una tanda.
 - No inventes valores que la web no usa. Si una sección no aplica, se omite.
 - Las secciones van en este orden y con estos títulos en inglés, porque así las reconocen las herramientas. El texto de adentro, en castellano.
-- "Do's and Don'ts" es lo más importante: ahí van las señas de IA encontradas, escritas como prohibiciones concretas de esta web.
+- "Do's and Don'ts" es lo más importante: ahí van las señas de IA encontradas, escritas como prohibiciones concretas de esta web. "Simplicity" guarda los límites medidos, para que la web no vuelva a llenarse de texto.
 
 ```markdown
 ---
@@ -74,4 +74,12 @@ Se generó desde el vault con la skill `sacar-cara-de-ia`. La marca vive en `03 
 ## Do's and Don'ts
 - Do: <lo que hace única a esta web y hay que cuidar>.
 - Don't: <cada seña de IA encontrada, como prohibición concreta. Ejemplo: "No repetir etiqueta en mayúsculas + título en cursiva en cada sección">.
+
+## Simplicity
+Los límites que se midieron y se cumplen. Quien cambie la web los vuelve a medir con `capturas.mjs`.
+- Portada en el celular: hasta <n> palabras y <n> pantallas; arriba, una frase y una acción.
+- Botones que compiten en la primera pantalla: <n> como máximo, además del menú.
+- Títulos de tarjeta humanos ("<2 ambientes en Palermo>"); la tarjeta entera se toca.
+- En el celular: barra fija abajo con <qué>, botones de 44 px o más, campos con letra de 16 px o más, nada de costado.
+- Lo que explica va a un "i" o a su página; lo que vende se compacta, no se borra.
 ```
