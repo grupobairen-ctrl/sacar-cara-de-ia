@@ -35,7 +35,7 @@
 // campo. "css" es el último recurso, para lo que no tiene texto (una foto).
 
 import { createRequire } from 'node:module';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, delimiter, resolve } from 'node:path';
 
 const PANTALLAS = {
@@ -123,13 +123,16 @@ async function buscarParaTocar(pagina, paso) {
     if (el) return { el, exacto: true };
   }
   if (typeof t !== 'string') return { el: null };
-  for (const exact of [true, false]) {
-    const lista = ROLES.map((rol) => pagina.getByRole(rol, { name: t, exact }));
+  // "Exacto" deja pasar flechas y signos alrededor: "Continuar →" es "Continuar".
+  const escapado = t.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const exacto = new RegExp(`^[^\\p{L}\\p{N}]*${escapado}[^\\p{L}\\p{N}]*$`, 'iu');
+  for (const nombre of [exacto, t]) {
+    const lista = ROLES.map((rol) => pagina.getByRole(rol, { name: nombre }));
     // La etiqueta, solo de un campo: una sección también tiene "etiqueta" y no se toca.
-    lista.push(pagina.getByLabel(t, { exact }).and(pagina.locator(CAMPOS)));
-    lista.push(soloVer ? pagina.getByText(t, { exact }) : pagina.getByText(t, { exact }).locator(TOCABLE));
+    lista.push(pagina.getByLabel(nombre).and(pagina.locator(CAMPOS)));
+    lista.push(soloVer ? pagina.getByText(nombre) : pagina.getByText(nombre).locator(TOCABLE));
     const el = await primeroVisible(lista);
-    if (el) return { el, exacto: exact };
+    if (el) return { el, exacto: nombre === exacto };
   }
   return { el: null };
 }
@@ -155,6 +158,10 @@ const salida = resolve(opc.salida);
 mkdirSync(salida, { recursive: true });
 const origen = new URL(opc.base).origin;
 const prefijo = `${slug(guion.persona || 'persona')}-${opc.dispositivo}-${opc.etiqueta}`;
+// Si se repite el recorrido, las capturas viejas de esta misma persona y etiqueta se van.
+for (const archivo of readdirSync(salida)) {
+  if (archivo === `${prefijo}.json` || (archivo.startsWith(`${prefijo}-`) && archivo.endsWith('.png'))) rmSync(join(salida, archivo));
+}
 
 const { chromium } = cargarPlaywright();
 const navegador = await lanzar(chromium);
@@ -183,6 +190,15 @@ await contexto.route('**/*', async (route) => {
   return route.continue();
 });
 
+// Lo que se abre en otra ventana (window.open, como el WhatsApp de un formulario)
+// tampoco sale: se anota adónde iba.
+await contexto.exposeBinding('__recorrerAbrio', (_, url) => {
+  frenados.push({ paso: pasoActual, tipo: 'salida frenada', detalle: describirSalida(new URL(url, opc.base).href) });
+});
+await contexto.addInitScript(() => {
+  window.open = (url) => { if (url) window.__recorrerAbrio(String(url)); return null; };
+});
+
 const pagina = await contexto.newPage();
 pagina.on('pageerror', (e) => erroresDeLaPagina.push(e.message.split('\n')[0]));
 pagina.on('dialog', (d) => d.dismiss().catch(() => {}));
@@ -190,6 +206,18 @@ contexto.on('page', (nueva) => { if (nueva !== pagina) nueva.close().catch(() =>
 
 const pasos = [];
 let toques = 0;
+let pantallasDeslizadas = 0;
+
+// Cuánto tuvo que bajar la persona para llegar a algo: los toques no lo cuentan.
+async function bajarHasta(el, registro) {
+  const { top, alto } = await el.evaluate((nodo) => ({ top: nodo.getBoundingClientRect().top, alto: window.innerHeight }));
+  if (top > alto) {
+    const n = Math.round(((top - alto * 0.5) / alto) * 10) / 10;
+    pantallasDeslizadas += n;
+    registro.bajo = n;
+  }
+  await el.scrollIntoViewIfNeeded();
+}
 let trabado = null;
 
 for (const [i, paso] of (guion.pasos || []).entries()) {
@@ -210,11 +238,11 @@ for (const [i, paso] of (guion.pasos || []).entries()) {
     } else if (paso.ver !== undefined) {
       const { el } = await buscarParaTocar(pagina, paso);
       if (!el) throw new Error(`no veo "${paso.ver}" en la pantalla`);
-      await el.scrollIntoViewIfNeeded();
+      await bajarHasta(el, registro);
     } else if (paso.tocar !== undefined || paso.marcar !== undefined) {
       const { el, exacto } = await buscarParaTocar(pagina, paso);
       if (!el) throw new Error(`no encuentro "${paso.tocar ?? paso.marcar}" para tocar`);
-      await el.scrollIntoViewIfNeeded();
+      await bajarHasta(el, registro);
       // De una opción con el círculo escondido, lo que la persona ve y toca es la etiqueta.
       const visto = (await el.evaluateHandle((nodo) => (nodo.matches('input[type="radio"], input[type="checkbox"]') && nodo.closest('label')) || nodo)).asElement() || el;
       registro.toco = await visto.evaluate((nodo) => `${nodo.tagName.toLowerCase()}: ${(nodo.innerText || nodo.getAttribute('aria-label') || nodo.getAttribute('alt') || '').replace(/\s+/g, ' ').trim().slice(0, 60)}`);
@@ -224,6 +252,7 @@ for (const [i, paso] of (guion.pasos || []).entries()) {
       if (caja && opc.dispositivo === 'celular' && (caja.height < 44 || caja.width < 44)) {
         notas.push(`se puede tocar, pero mide ${Math.round(caja.width)} × ${Math.round(caja.height)} px (menos de 44)`);
       }
+      if (registro.bajo >= 1) notas.push(`tuvo que bajar ${String(registro.bajo).replace('.', ',')} pantallas para encontrarlo`);
       registro.detalle = notas.join('; ');
       const href = await el.evaluate((nodo) => nodo.closest('a')?.href || null);
       if (href && (!href.startsWith(origen) || /^(tel|mailto|whatsapp):/.test(href))) {
@@ -274,7 +303,7 @@ for (const [i, paso] of (guion.pasos || []).entries()) {
     registro.detalle = e.message.split('\n')[0].replace(/^locator\.\w+: /, '');
   }
   registro.url = pagina.url().replace(origen, '') || '/';
-  registro.captura = join(salida, `${prefijo}-${n}-${slug(registro.objetivo || registro.accion)}.png`);
+  registro.captura = join(salida, `${prefijo}-${n}-${slug(registro.objetivo) || slug(registro.accion)}.png`);
   await pagina.screenshot({ path: registro.captura }).catch(() => { registro.captura = null; });
   pasos.push(registro);
   if (registro.resultado === 'falla' && !trabado) {
@@ -293,6 +322,7 @@ const informe = {
   llego: !trabado,
   trabadoEnPaso: trabado,
   toques,
+  pantallasDeslizadas: Math.round(pantallasDeslizadas * 10) / 10,
   pasos,
   frenados,
   erroresDeLaPagina: [...new Set(erroresDeLaPagina)],

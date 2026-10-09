@@ -17,7 +17,7 @@ Esta skill ataca las tres y **lo demuestra con números**: palabras, pantallas, 
 
 - **El vault manda.** Leé el `CLAUDE.md` del vault y cumplí sus reglas: qué se pregunta antes, cómo se escribe, qué no se nombra.
 - **No inventás nada.** Ni fotos, ni videos, ni testimonios, ni números, ni clientes, ni premios, ni datos de productos. Si una mejora necesita algo real que no está en el vault, va a "Lo que tenés que conseguir vos".
-- **La marca no cambia sola.** Colores, tipografías, logo y frase son decisiones del dueño. Si algo de la marca delata a la IA, lo explicás con opciones y cambiás solo con OK. Si cambia, actualizás la nota de marca del vault.
+- **La marca no cambia sola.** Colores, tipografías, logo y frase son decisiones del dueño. Si algo de la marca delata a la IA, lo explicás con opciones y cambiás solo con OK. Si cambia, actualizás la nota de marca del vault. Si el CSS no respeta lo que la nota de marca **ya dice** (por ejemplo, la nota dice Jost y la web usa otra letra), alinearlo es una tanda normal: se avisa, no se pregunta.
 - **Se cambia el aspecto y el orden, no la lógica.** No tocás formularios, links de WhatsApp, filtros, base de datos, panel, idiomas ni SEO, salvo un texto o una clase. Podés conectar con lo que ya existe (por ejemplo, un buscador en la portada que lleve al catálogo con un filtro que el catálogo ya entiende), pero no sumás funciones nuevas (guardar favoritos, cuentas, buscadores con lógica propia). Si algo deja de andar, es un error tuyo y lo arreglás antes de seguir.
 - **Recortar no es borrar lo que vende.** Se recorta lo que explica, repite o adorna. Lo que el cliente quiere saber (precio, metros, comodidades, ubicación) se compacta, no se borra.
 - **Nada sale de verdad.** Los clientes simulados no mandan formularios ni mensajes: `recorrer.mjs` los frena. No pruebes envíos de otra forma.
@@ -41,8 +41,9 @@ Antes de arrancar, decile al alumno en tres líneas qué va a pasar: vas a mirar
    - Webs de referencia, si alguna nota las nombra (suele ser `Identidad visual` o `Brief de la web`).
 3. **La web**: la carpeta `web/` del vault (si no existe, la que tenga el `index.html`).
    - Corré `git status` ahí. Si hay cambios sin guardar, avisale al alumno y proponé un commit antes de empezar: es el punto de vuelta.
-   - Levantá la web en la compu, en segundo plano. Si el puerto 4321 ya responde, usalo. Si existe `web/servidor-local.js`, `node web/servidor-local.js`; si no, `python3 -m http.server 4321 --directory web`.
+   - Levantá la web en la compu, en segundo plano. Si el puerto 4321 ya responde, confirmá que es **esta** web (compará el `<title>` con el de `web/index.html`): puede ser otra copia. Si no es, usá otro puerto. Si existe `web/servidor-local.js`, `PUERTO=4321 node web/servidor-local.js`; si no, `python3 -m http.server 4321 --directory web`.
    - Hacé la lista de páginas públicas: portada, catálogo, una ficha real y las que haya (nosotros, contacto, tasaciones, pedido de visita, 404). El panel de administración no entra.
+   - **Fijate cuánto contenido real hay.** Si el catálogo tiene menos de 3 propiedades o datos de prueba, avisale al alumno: la ficha y los clientes simulados van a medir también el contenido, no solo el diseño. Cargar propiedades reales va a "Lo que tenés que conseguir vos".
 4. **Fotos y videos propios**: fijate qué hay en el vault y en `web/` (por ejemplo `03 - Marca/archivos/`, `web/assets/`). Un video propio cambia la primera pantalla; si no hay, se anota en "Lo que tenés que conseguir vos".
 
 ## Paso 2. La dirección y la tarea de cada cliente
@@ -51,7 +52,7 @@ Antes de mirar la web, escribí para vos (después va al informe):
 - Qué vende, a quién y dónde.
 - Lo que solo este negocio tiene y la competencia no puede copiar: diferencial, zonas, números, equipo, forma de trabajar. Si el diferencial es genérico ("atención personalizada", "calidad"), anotalo como problema de contenido.
 - Cómo habla (voz de marca) y cómo se ve (identidad visual, webs de referencia).
-- **La frase de dirección**: "Tiene que sentirse como ___, no como ___". Ejemplo: "como el anfitrión de una casa grande, no como un portal de avisos".
+- **La frase de dirección**: "Tiene que sentirse como ___, no como ___". Sale de este vault, con sus palabras; no copies el ejemplo. Ejemplo de otro rubro: "como la parrilla del barrio donde te conocen, no como una cadena de comidas".
 - **La tarea número uno de cada tipo de cliente**, con sus palabras. Ejemplo: comprador, "ver departamentos de 2 ambientes en venta en Palermo y preguntar por uno"; propietario, "pedir una tasación".
 
 Cada cambio que propongas sale de esta frase, de una seña concreta, de un número medido o de un cliente que se trabó. Nunca de "queda más lindo".
@@ -69,6 +70,7 @@ npx -y -p playwright@1 node "<carpeta de esta skill>/scripts/capturas.mjs" \
 - Saca cada página en compu (1440 px) y celular (390 px): la página entera y la primera pantalla (`-primera.png`).
 - **Mide** cada página como la ve una persona (solo lo visible): `palabras`, `palabrasPrimeraPantalla`, `pantallas`, `acciones`, `accionesPrimeraPantalla`, `campos`, `fotoOVideoGrandeArriba`, `seSaleDeCostado`, `botonesChicos` (con ejemplos) y `camposQueHacenZoom`. Queda en `mediciones-antes.json`, en la misma carpeta. Qué significa cada número y qué meta tiene: [referencias/la-vara-alta.md](referencias/la-vara-alta.md), sección 1.
 - `--ficha` busca sola la primera ficha del catálogo. Si el catálogo está en otra ruta, sumá `--catalogo /ruta`.
+- Las páginas que necesitan un dato en la dirección van con él, entre comillas: `'visita=/visita.html?p=<link de la ficha>'`. La 404 se captura con una dirección que no existe (`404=/no-existe`).
 - Si ya hay capturas de una ronda anterior, usá etiquetas `r2-antes`, `r2-tanda-1`, para no pisarlas.
 - Si dice que no hay navegador, avisale al alumno que se baja uno de unos 150 MB y corré `npx -y playwright@1 install chromium`. Si igual falla, usá la herramienta de navegador que tengas y sacá las capturas pantalla por pantalla.
 - El resultado dice `invisiblesForzados`: si es mayor a 0, hay contenido que solo aparece con una animación. Anotalo para el paso 6.
@@ -85,6 +87,8 @@ npx -y impeccable detect --json --no-design-system <url>
 npx -y impeccable detect --json --no-design-system --viewport 390x844 <url>
 ```
 
+- Corré las llamadas en paralelo (`&` y `wait`): son unos 20 segundos cada una.
+- Que termine con código 2 es normal: quiere decir que encontró avisos. Con una página que da 404 no informa nada; para la 404, medí el archivo directo (por ejemplo `/404.html`).
 - Juntá los resultados por regla, no por aparición. Separá `"category": "slop"` (cara de IA) de `"quality"` (oficio).
 - El detector se equivoca. Confirmá cada aviso en la captura o en el CSS; si es falso, lo descartás y lo anotás en el informe como descartado. Ojo: también lee lo que no se ve (el menú del celular cerrado, mensajes que aparecen solo en ciertos casos); si el aviso es sobre algo oculto, medilo abierto antes de darlo por bueno.
 - Guardá el total de avisos: es el número del antes.
@@ -110,7 +114,9 @@ Leé [referencias/la-vara-alta.md](referencias/la-vara-alta.md), sección 7. Des
 ```
 
 - Pasos posibles: `ir`, `tocar`, `escribir` (con `en`), `elegir` (con `en`), `marcar`, `ver`, `bajar` y `volver`. `tocar`, `ver` y `marcar` buscan por el texto que ve la persona. `css` es el último recurso, para lo que no tiene texto (una foto).
-- Escribí los pasos con **las palabras de la persona**, no copiando las de la web. Si falla porque la web usa otra palabra, eso es un hallazgo: anotalo como "confunde", cambiá a la palabra de la web y seguí.
+- Escribí los pasos con **las palabras de la persona**, no copiando las de la web. Si falla porque la web usa otra palabra, eso es un hallazgo: anotalo como "confunde". Ese guion **no se cambia**: es el mismo antes y después, así se ve la mejora. Para ver qué pasa después de la traba, hacé una copia con la palabra de la web (`<cliente>-web.json`) y corré las dos.
+- Si se traba por falta de contenido (no hay alquileres, el barrio está mal cargado), no es diseño: va a "Lo que tenés que conseguir vos".
+- Si repetís un recorrido con la misma etiqueta, el script borra solo las capturas de la corrida anterior.
 - Corré todos a la vez:
 
 ```bash
@@ -122,7 +128,7 @@ done; wait
 ```
 
   Cada uno deja `<cliente>-celular-antes.json` y una captura por paso.
-- El script dice `bien` o `falla` por paso, `toques`, `llego`, qué frenó (`frenados`: el mensaje de WhatsApp que se habría mandado, el formulario que se habría enviado) y los errores de la página. Si un paso dice "no hay nada que diga exactamente...", revisá en la captura si tocó lo que la persona buscaba.
+- El script dice `bien` o `falla` por paso, `toques`, cuántas pantallas tuvo que bajar (`pantallasDeslizadas`), `llego`, qué frenó (`frenados`: el mensaje de WhatsApp que se habría mandado, el formulario que se habría enviado) y los errores de la página. Si un paso dice "no hay nada que diga exactamente...", revisá en la captura si tocó lo que la persona buscaba.
 - **Mirá las capturas de cada paso.** Sumá "confunde" donde la persona lo habría encontrado pero dudando: tardó, tocó algo chico, la pantalla no le confirmó nada, el mensaje armado no dice de qué propiedad habla.
 - Hacé la lista única de problemas por gravedad: **bloquea**, **molesta**, **detalle**.
 
@@ -148,7 +154,7 @@ done; wait
      3. **La primera pantalla y las tarjetas**: imagen o video propio que manda, una frase, una acción; tarjetas con la foto arriba y tres datos; listas que se deslizan en el celular.
      4. **Marca**: cursiva, acento, colores. Solo con OK.
    - "Lo que tenés que conseguir vos": lo que ningún código arregla (fotos, un video corto, caras, datos). Cada ítem va también a `Prioridades`.
-2. Creá o actualizá `web/DESIGN.md` con [referencias/plantilla-design-md.md](referencias/plantilla-design-md.md): los valores que ya están en el CSS, lo que dice `Identidad visual`, las señas encontradas como prohibiciones y los límites de sencillez. Si ya existe, mostrale al alumno qué cambia antes de pisarlo.
+2. Creá o actualizá `web/DESIGN.md` con [referencias/plantilla-design-md.md](referencias/plantilla-design-md.md): los valores que ya están en el CSS, lo que dice `Identidad visual`, las señas encontradas como prohibiciones y los límites de sencillez. Si ya existe, mostrale al alumno qué cambia antes de pisarlo. Va en su propio commit, antes de la primera tanda: `Diseño: reglas en DESIGN.md`.
    - Confirmá que no se publique: `*.md` tiene que estar en `web/.vercelignore` (o en el equivalente del servicio que use). Si no está, sumalo.
    - En `Brief de la web` (o en la nota que se lee para construir la web) sumá una línea: "Reglas de diseño: `web/DESIGN.md`. Se leen antes de tocar el diseño."
 
@@ -209,7 +215,7 @@ node "<carpeta de esta skill>/scripts/comparar.mjs" \
   --extra "<vault>/07 - Web/Capturas/antes-y-despues.json" --abrir
 ```
 
-   Tiene los números grandes, un deslizador sobre la primera pantalla de cada página en compu y en celular, los clientes simulados y la tabla completa. Miralá antes de mostrarla (con una captura de esa página): si un número empeoró, decilo y explicá por qué.
+   Tiene los números grandes, un deslizador sobre la primera pantalla de cada página en compu y en celular, los clientes simulados y la tabla completa. Miralá antes de mostrarla: sacale una captura con el mismo script, usando la carpeta como base (`--base "file://<vault>/07%20-%20Web/" "comparar=Antes%20y%20despu%C3%A9s.html"`, con los espacios y los acentos codificados). Si un número empeoró, decilo y explicá por qué.
 6. En el informe, completá "Antes y después": la tabla de números, los clientes, la primera pantalla de la portada en compu y celular, lo que se hizo en cada tanda y lo que quedó. Sumá al índice de `07 - Web` una línea para `Antes y después.html` ("se abre en el navegador").
 7. Si el vault no tiene publicación automática y la web ya está publicada, decile al alumno que la versión en internet sigue siendo la anterior y que publicarla es otro paso, con su OK.
 8. Actualizá la nota del día, `Estado de la web` y `Prioridades`, como pide el `CLAUDE.md` del vault.

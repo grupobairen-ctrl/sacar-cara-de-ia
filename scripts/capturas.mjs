@@ -151,7 +151,8 @@ async function medir(pagina) {
 
     const campos = [...document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea')]
       .filter((el) => visible(el) && enPantalla(el.getBoundingClientRect()));
-    const camposChicos = !tactil ? [] : campos.filter((el) => parseFloat(getComputedStyle(el).fontSize) < 16);
+    // Las casillas y las opciones no hacen zoom: solo los campos donde se escribe o se elige.
+    const camposChicos = !tactil ? [] : campos.filter((el) => !el.matches('[type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]') && parseFloat(getComputedStyle(el).fontSize) < 16);
 
     const medios = [...document.querySelectorAll('img, video, picture, [style*="background-image"]')]
       .filter((el) => visible(el))
@@ -227,8 +228,19 @@ for (const [dispositivo, config] of Object.entries(PANTALLAS)) {
       const forzados = await prepararParaCaptura(pagina);
       const medicion = await medir(pagina);
       const base = join(salida, `${nombre}-${dispositivo}-${opc.etiqueta}`);
-      await pagina.screenshot({ path: `${base}.png`, fullPage: true });
       await pagina.screenshot({ path: `${base}-primera.png` });
+      // En la página entera, lo fijo (barra de abajo, burbuja) aparecería en el medio:
+      // lo de arriba queda arriba y lo de abajo se saca de esa captura.
+      await pagina.evaluate(() => {
+        for (const el of document.querySelectorAll('body *')) {
+          const s = getComputedStyle(el);
+          if (s.position !== 'fixed') continue;
+          const r = el.getBoundingClientRect();
+          if (r.top > window.innerHeight / 2) el.style.setProperty('visibility', 'hidden', 'important');
+          else el.style.setProperty('position', 'absolute', 'important');
+        }
+      });
+      await pagina.screenshot({ path: `${base}.png`, fullPage: true });
       resultado.push({ pagina: nombre, dispositivo, url, archivo: `${base}.png`, primeraPantalla: `${base}-primera.png`, invisiblesForzados: forzados, medicion });
     } catch (e) {
       resultado.push({ pagina: nombre, dispositivo, url, error: e.message.split('\n')[0] });
