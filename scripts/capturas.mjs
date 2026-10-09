@@ -111,7 +111,9 @@ async function medir(pagina) {
       if (!el || el === document.body || el === document.documentElement) return true;
       if (cache.has(el)) return cache.get(el);
       const s = getComputedStyle(el);
-      let v = s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity) > 0.05
+      // Lo que está adentro de un plegable cerrado no se ve (salvo su título).
+      const plegado = el.parentElement && el.parentElement.matches('details:not([open])') && !el.matches('summary');
+      let v = !plegado && s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity) > 0.05
         && !el.matches('[hidden],[aria-hidden="true"],dialog:not([open]),script,style,noscript,template');
       if (v) v = visible(el.parentElement);
       cache.set(el, v);

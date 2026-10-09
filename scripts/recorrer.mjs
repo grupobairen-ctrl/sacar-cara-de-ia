@@ -113,6 +113,7 @@ async function primeroVisible(candidatos) {
 // Para tocar, el texto tiene que estar en algo que se toca: un título que dice
 // "Propiedades" no lleva a ningún lado, y una persona que lo toca se queda igual.
 const ROLES = ['button', 'link', 'tab', 'radio', 'checkbox', 'menuitem', 'option'];
+const CAMPOS = 'input, select, textarea, button, [role="checkbox"], [role="radio"], [role="switch"]';
 const TOCABLE = 'xpath=ancestor-or-self::*[self::a[@href] or self::button or self::label or self::summary or @role="button" or @role="link" or @role="tab" or @onclick][1]';
 async function buscarParaTocar(pagina, paso) {
   const t = paso.tocar ?? paso.marcar ?? paso.ver;
@@ -124,7 +125,8 @@ async function buscarParaTocar(pagina, paso) {
   if (typeof t !== 'string') return { el: null };
   for (const exact of [true, false]) {
     const lista = ROLES.map((rol) => pagina.getByRole(rol, { name: t, exact }));
-    lista.push(pagina.getByLabel(t, { exact }));
+    // La etiqueta, solo de un campo: una sección también tiene "etiqueta" y no se toca.
+    lista.push(pagina.getByLabel(t, { exact }).and(pagina.locator(CAMPOS)));
     lista.push(soloVer ? pagina.getByText(t, { exact }) : pagina.getByText(t, { exact }).locator(TOCABLE));
     const el = await primeroVisible(lista);
     if (el) return { el, exacto: exact };
