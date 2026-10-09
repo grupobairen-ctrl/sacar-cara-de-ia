@@ -215,10 +215,12 @@ for (const [i, paso] of (guion.pasos || []).entries()) {
       const { el, exacto } = await buscarParaTocar(pagina, paso);
       if (!el) throw new Error(`no encuentro "${paso.tocar ?? paso.marcar}" para tocar`);
       await el.scrollIntoViewIfNeeded();
-      registro.toco = await el.evaluate((nodo) => `${nodo.tagName.toLowerCase()}: ${(nodo.innerText || nodo.getAttribute('aria-label') || nodo.getAttribute('alt') || '').replace(/\s+/g, ' ').trim().slice(0, 60)}`);
+      // De una opción con el círculo escondido, lo que la persona ve y toca es la etiqueta.
+      const visto = (await el.evaluateHandle((nodo) => (nodo.matches('input[type="radio"], input[type="checkbox"]') && nodo.closest('label')) || nodo)).asElement() || el;
+      registro.toco = await visto.evaluate((nodo) => `${nodo.tagName.toLowerCase()}: ${(nodo.innerText || nodo.getAttribute('aria-label') || nodo.getAttribute('alt') || '').replace(/\s+/g, ' ').trim().slice(0, 60)}`);
       const notas = [];
       if (!exacto) notas.push(`no hay nada que diga exactamente "${paso.tocar ?? paso.marcar}"; tocó lo que lo contiene (${registro.toco}): revisá si es lo que buscaba la persona`);
-      const caja = await el.boundingBox();
+      const caja = await visto.boundingBox();
       if (caja && opc.dispositivo === 'celular' && (caja.height < 44 || caja.width < 44)) {
         notas.push(`se puede tocar, pero mide ${Math.round(caja.width)} × ${Math.round(caja.height)} px (menos de 44)`);
       }
@@ -227,8 +229,10 @@ for (const [i, paso] of (guion.pasos || []).entries()) {
       if (href && (!href.startsWith(origen) || /^(tel|mailto|whatsapp):/.test(href))) {
         registro.detalle = [registro.detalle, describirSalida(href)].filter(Boolean).join('; ');
         frenados.push({ paso: pasoActual, tipo: 'salida frenada', detalle: describirSalida(href) });
-      } else if (paso.marcar !== undefined) {
-        await el.check({ timeout: 5000 }).catch(() => el.click({ timeout: 5000 }));
+      } else if (paso.marcar !== undefined || await el.evaluate((nodo) => nodo.matches('input[type="radio"], input[type="checkbox"]'))) {
+        // Una opción (Comprar o Alquilar, un filtro): la persona toca la etiqueta que
+        // ve, aunque el círculo esté escondido por diseño.
+        await el.check({ timeout: 5000, force: true }).catch(() => el.click({ timeout: 5000, force: true }));
       } else if (opc.dispositivo === 'celular') {
         await el.tap({ timeout: 5000 });
       } else {
