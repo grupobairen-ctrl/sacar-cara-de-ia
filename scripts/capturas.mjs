@@ -169,7 +169,8 @@ async function medir(pagina) {
       alto: document.documentElement.scrollHeight,
       pantallas: Math.round((document.documentElement.scrollHeight / vh) * 10) / 10,
       acciones: acciones.length,
-      accionesPrimeraPantalla: acciones.filter((el) => primera(el.getBoundingClientRect())).length,
+      // Las que compiten: sin contar la navegación (menú, barra de abajo, pie).
+      accionesPrimeraPantalla: acciones.filter((el) => primera(el.getBoundingClientRect()) && !el.closest('nav, header, footer, [role="navigation"]')).length,
       campos: campos.length,
       fotoOVideoGrandeArriba: fotoPrimera,
       seSaleDeCostado: document.documentElement.scrollWidth > vw + 1,

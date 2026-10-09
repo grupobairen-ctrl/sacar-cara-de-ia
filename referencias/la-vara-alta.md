@@ -13,7 +13,7 @@ Sale de un portal inmobiliario real, rediseñado en octubre de 2026 con este mis
 | `palabras` | Cuánto hay que leer en toda la página. | Bajar bastante, a menudo a la mitad, sin perder datos que venden. |
 | `palabrasPrimeraPantalla` | Cuánto hay que leer antes de tocar algo. | Una frase y una acción. En la portada, menos de 25 palabras. |
 | `pantallas` | Cuántas veces hay que deslizar para llegar al final. | Que lo importante esté en las 2 o 3 primeras. |
-| `accionesPrimeraPantalla` | Cuántos botones y links compiten arriba. | Una principal y una secundaria, además del menú. |
+| `accionesPrimeraPantalla` | Cuántos botones y links compiten arriba, sin contar la navegación (menú, barra de abajo, pie). | Una principal y una secundaria. |
 | `campos` | Cuánto pide un formulario a la vista. | Una decisión por pantalla en formularios largos. |
 | `botonesChicos` | Cosas que se tocan y miden menos de 44 px (celular). | 0. |
 | `camposQueHacenZoom` | Campos con letra de menos de 16 px: el iPhone se acerca solo al tocarlos (celular). | 0. |
